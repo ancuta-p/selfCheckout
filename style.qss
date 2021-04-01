@@ -1,0 +1,36 @@
+QWidget{
+	background-color: #CFD8DC;
+}
+
+QListView, QTableWidget, QPlainTextEdit{
+	background-color: #FFFFFF;
+}
+
+QPushButton {
+    background-color: #78909C;
+}
+
+QGridLayout#gridLayout {
+	background-color: #B0BEC5;
+}
+
+QPushButton#pushButtonNoBack {
+	background-color: #90A4AE;
+}
+
+QPushButton#pushButtonNoCancel {
+	background-color: #90A4AE;
+}
+
+QPushButton#pushButtonEnter {
+	background-color: #FF8E72;
+}
+
+QPushButton#pushButtonSearch {
+	background-color: #FF8E72;
+}
+
+QPushButton#pushButtonFinish {
+	background-color: #fc582f;
+}
+
