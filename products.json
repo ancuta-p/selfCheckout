@@ -1,0 +1,68 @@
+[
+  {
+    "id": 1111,
+    "name": "avocado",
+    "price": 5,
+    "image": "./imgs/avocado.png"
+  },
+  {
+    "id": 2222,
+    "name": "mango",
+    "price": 4,
+    "image": "./imgs/mango.png"
+  },
+  {
+    "id": 3333,
+    "name": "radish",
+    "price": 3,
+    "image": "./imgs/radish.png"
+  },
+  {
+    "id": 4444,
+    "name": "dill",
+    "price": 3,
+    "image": "./imgs/dill.png"
+  },
+  {
+    "id": 5555,
+    "name": "lettuce",
+    "price": 2,
+    "image": "./imgs/lettuce.png"
+  },
+  {
+    "id": 7878,
+    "name": "pomegranate",
+    "price": 4,
+    "image": "./imgs/pomegranate.png"
+  },
+  {
+    "id": 6666,
+    "name": "muffin",
+    "price": 3,
+    "image": "./imgs/muffin.png"
+  },
+  {
+    "id": 7777,
+    "name": "donut",
+    "price": 3,
+    "image": "./imgs/donut.png"
+  },
+  {
+    "id": 8888,
+    "name": "apple strudel",
+    "price": 3.5,
+    "image": "./imgs/apple_strudel.png"
+  },
+  {
+    "id": 9999,
+    "name": "brownie",
+    "price": 5,
+    "image": "./imgs/brownie.png"
+  },
+  {
+    "id": 1234,
+    "name": "croissant",
+    "price": 5,
+    "image": "./imgs/croissant.png"
+  }
+]

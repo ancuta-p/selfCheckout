@@ -16,7 +16,7 @@
   <widget class="QPushButton" name="pushButtonHelp">
    <property name="geometry">
     <rect>
-     <x>850</x>
+     <x>858</x>
      <y>20</y>
      <width>41</width>
      <height>25</height>
@@ -55,7 +55,7 @@
     <rect>
      <x>70</x>
      <y>70</y>
-     <width>751</width>
+     <width>781</width>
      <height>441</height>
     </rect>
    </property>
@@ -65,6 +65,39 @@
    <property name="horizontalScrollBarPolicy">
     <enum>Qt::ScrollBarAlwaysOff</enum>
    </property>
+   <property name="sizeAdjustPolicy">
+    <enum>QAbstractScrollArea::AdjustToContents</enum>
+   </property>
+   <property name="rowCount">
+    <number>1</number>
+   </property>
+   <property name="columnCount">
+    <number>5</number>
+   </property>
+   <attribute name="horizontalHeaderVisible">
+    <bool>false</bool>
+   </attribute>
+   <attribute name="horizontalHeaderMinimumSectionSize">
+    <number>153</number>
+   </attribute>
+   <attribute name="horizontalHeaderDefaultSectionSize">
+    <number>153</number>
+   </attribute>
+   <attribute name="verticalHeaderVisible">
+    <bool>false</bool>
+   </attribute>
+   <attribute name="verticalHeaderMinimumSectionSize">
+    <number>153</number>
+   </attribute>
+   <attribute name="verticalHeaderDefaultSectionSize">
+    <number>153</number>
+   </attribute>
+   <row/>
+   <column/>
+   <column/>
+   <column/>
+   <column/>
+   <column/>
   </widget>
  </widget>
  <resources/>

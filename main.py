@@ -1,29 +1,15 @@
-import json
-import os
-
-from PyQt5 import QtWidgets
-from PyQt5.QtWidgets import QApplication
-from playsound import playsound
+import math
 import sys
+from playsound import playsound
 
+from PyQt5 import QtWidgets, QtGui
+from PyQt5.QtWidgets import QApplication
 from PyQt5.uic import loadUi
+
+from product import ProductsList
 
 navSoundPath = './sounds/navigation_selection-complete-celebration2.wav'
 tapSoundPath = './sounds/ui_tap-variant-03.wav'
-with open('./themes.json') as f:
-    theme = f.read()
-theme = json.loads(theme)
-
-
-class SelfCheckoutSearchWidget(QtWidgets.QWidget):
-    def __init__(self, parent=None):
-        super(SelfCheckoutSearchWidget, self).__init__()
-        loadUi('selfCheckoutSearchView.ui', self)
-
-        # self.pushButtonHelp.clicked.connect(self.pushHelpButton)
-
-    def pushButtonHelp(self):
-        playsound(navSoundPath)
 
 
 class SelfCheckoutStartWidget(QtWidgets.QWidget):
@@ -31,8 +17,51 @@ class SelfCheckoutStartWidget(QtWidgets.QWidget):
         super(SelfCheckoutStartWidget, self).__init__()
         loadUi('selfCheckoutStartView.ui', self)
 
-        # self.pushButtonStart.setStyleSheet(f'background-color:{theme["200"]}')
 
+class SelfCheckoutSearchWidget(QtWidgets.QWidget):
+    def __init__(self, parent=None):
+        super(SelfCheckoutSearchWidget, self).__init__()
+        loadUi('selfCheckoutSearchView.ui', self)
+        self.populateTable()
+        # self.pushButtonHelp.clicked.connect(self.pushHelpButton)
+
+    def populateTable(self):
+        products = ProductsList().getProducts()
+        self.tableWidgetItems.setRowCount(math.ceil(len(products) / 5))
+        i = 0
+        j = 0
+        for product in products:
+            widget = ProductWidget()
+            widget.setName(product["name"])
+            widget.setImage(product["image"])
+            self.tableWidgetItems.setCellWidget(i, j, widget)
+            j = (j + 1) % 5
+            i = i + 1 if j == 0 else i
+
+    def pushButtonHelp(self):
+        playsound(navSoundPath)
+
+
+class ProductWidget(QtWidgets.QWidget):
+    def __init__(self, parent=None):
+        super(ProductWidget, self).__init__(parent)
+        self.layout = QtWidgets.QVBoxLayout()
+        self.labelName = QtWidgets.QLabel()
+        self.labelImage = QtWidgets.QLabel()
+        self.layout.addWidget(self.labelName)
+        self.layout.addWidget(self.labelImage)
+        self.setLayout(self.layout)
+
+    def setName(self, text):
+        self.labelName.setText(text)
+
+    def setImage(self, imagePath):
+        self.labelImage.setPixmap(QtGui.QPixmap(imagePath).scaled(100, 100))
+
+# todo: widget pt lista, cu nume, pret, id(?), remove btn(?)
+# todo: clase pt produse
+# todo: callback pt enter cod
+# todo: callback pt table cell
 
 class SelfCheckoutMainWidget(QtWidgets.QWidget):
     def __init__(self, parent=None):
@@ -55,7 +84,16 @@ class SelfCheckoutMainWidget(QtWidgets.QWidget):
         self.pushButtonEnter.clicked.connect(self.pushEnterButton)
         self.pushButtonFinish.clicked.connect(self.pushFinishButton)
 
-        # self.pushButtonHelp.clicked.connect(self.pushHelpButton)
+        self.populateList()
+
+    def populateList(self):
+        for i in range(3):
+            myQCustomQWidget = ProductWidget()
+            myQCustomQWidget.setName('avocado')
+            myQListWidgetItem = QtWidgets.QListWidgetItem(self.listWidgetProducts)
+            myQListWidgetItem.setSizeHint(myQCustomQWidget.sizeHint())
+            self.listWidgetProducts.addItem(myQListWidgetItem)
+            self.listWidgetProducts.setItemWidget(myQListWidgetItem, myQCustomQWidget)
 
     def pushNumber(self, no):
         playsound(tapSoundPath)
