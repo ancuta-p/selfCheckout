@@ -1,5 +1,6 @@
 import math
 import sys
+
 from playsound import playsound
 
 from PyQt5 import QtWidgets, QtGui
@@ -23,6 +24,7 @@ class SelfCheckoutSearchWidget(QtWidgets.QWidget):
         super(SelfCheckoutSearchWidget, self).__init__()
         loadUi('selfCheckoutSearchView.ui', self)
         self.populateTable()
+        self.tableWidgetItems.cellClicked.connect(self.tableItemClicked)
         # self.pushButtonHelp.clicked.connect(self.pushHelpButton)
 
     def populateTable(self):
@@ -31,20 +33,27 @@ class SelfCheckoutSearchWidget(QtWidgets.QWidget):
         i = 0
         j = 0
         for product in products:
-            widget = ProductWidget()
-            widget.setName(product["name"])
+            widget = TableProductWidget()
+            widget.setName(product["name"])  # id  hidden?
             widget.setImage(product["image"])
             self.tableWidgetItems.setCellWidget(i, j, widget)
             j = (j + 1) % 5
             i = i + 1 if j == 0 else i
 
+    def tableItemClicked(self, row, column):
+        product = self.tableWidgetItems.cellWidget(row, column)
+        if product:
+            print(product.labelName.text())
+            playsound(navSoundPath)
+            # self.pushButtonBack.click()
+
     def pushButtonHelp(self):
         playsound(navSoundPath)
 
 
-class ProductWidget(QtWidgets.QWidget):
+class TableProductWidget(QtWidgets.QWidget):
     def __init__(self, parent=None):
-        super(ProductWidget, self).__init__(parent)
+        super(TableProductWidget, self).__init__(parent)
         self.layout = QtWidgets.QVBoxLayout()
         self.labelName = QtWidgets.QLabel()
         self.labelImage = QtWidgets.QLabel()
@@ -58,15 +67,35 @@ class ProductWidget(QtWidgets.QWidget):
     def setImage(self, imagePath):
         self.labelImage.setPixmap(QtGui.QPixmap(imagePath).scaled(100, 100))
 
-# todo: widget pt lista, cu nume, pret, id(?), remove btn(?)
-# todo: clase pt produse
-# todo: callback pt enter cod
-# todo: callback pt table cell
+
+class ListProductWidget(QtWidgets.QWidget):
+    def __init__(self, parent=None):
+        super(ListProductWidget, self).__init__(parent)
+        self.layout = QtWidgets.QHBoxLayout()
+        self.labelName = QtWidgets.QLabel()
+        self.labelPrice = QtWidgets.QLabel()
+        self.pushButtonRemove = QtWidgets.QPushButton('Remove')
+        self.pushButtonRemove.setMaximumWidth(60)
+
+        self.layout.addWidget(self.labelName)
+        self.layout.addWidget(self.labelPrice)
+        self.layout.addWidget(self.pushButtonRemove)
+        self.setLayout(self.layout)
+
+    def setName(self, text):
+        self.labelName.setText(text)
+
+    def setPrice(self, text):
+        self.labelPrice.setText(f'{text} $')
+
 
 class SelfCheckoutMainWidget(QtWidgets.QWidget):
     def __init__(self, parent=None):
         super(SelfCheckoutMainWidget, self).__init__()
         loadUi('selfCheckoutMainView.ui', self)
+
+        self.productList = ProductsList()
+        self.total = 0
 
         self.pushButtonNo0.clicked.connect(lambda: self.pushNumber(0))
         self.pushButtonNo1.clicked.connect(lambda: self.pushNumber(1))
@@ -84,16 +113,29 @@ class SelfCheckoutMainWidget(QtWidgets.QWidget):
         self.pushButtonEnter.clicked.connect(self.pushEnterButton)
         self.pushButtonFinish.clicked.connect(self.pushFinishButton)
 
-        self.populateList()
+    def _addToList(self, item):
+        listItem = ListProductWidget()
+        listItem.setName(item['name'])
+        listItem.setPrice(item['price'])
+        listItem.pushButtonRemove.clicked.connect(self._removeFromList)
+        myQListWidgetItem = QtWidgets.QListWidgetItem(self.listWidgetProducts)
+        myQListWidgetItem.setSizeHint(listItem.sizeHint())
+        self.listWidgetProducts.addItem(myQListWidgetItem)
+        self.listWidgetProducts.setItemWidget(myQListWidgetItem, listItem)
 
-    def populateList(self):
-        for i in range(3):
-            myQCustomQWidget = ProductWidget()
-            myQCustomQWidget.setName('avocado')
-            myQListWidgetItem = QtWidgets.QListWidgetItem(self.listWidgetProducts)
-            myQListWidgetItem.setSizeHint(myQCustomQWidget.sizeHint())
-            self.listWidgetProducts.addItem(myQListWidgetItem)
-            self.listWidgetProducts.setItemWidget(myQListWidgetItem, myQCustomQWidget)
+        self.total += item['price']
+        self.labelTotalValue.setText(f'{self.total} $')
+
+    def _removeFromList(self):
+        # todo: T.T
+        row = self.listWidgetProducts.currentRow()
+        widgetItem = self.listWidgetProducts.item(row)
+        item = self.listWidgetProducts.itemWidget(widgetItem)
+        print(row)
+        self.listWidgetProducts.takeItem(row)
+
+        self.total -= int(item.labelPrice.text().replace(' $', ''))
+        self.labelTotalValue.setText(f'{self.total} $')
 
     def pushNumber(self, no):
         playsound(tapSoundPath)
@@ -111,6 +153,16 @@ class SelfCheckoutMainWidget(QtWidgets.QWidget):
 
     def pushEnterButton(self):
         playsound(navSoundPath)
+        code = self.plainTextEditCode.toPlainText()
+        if code:
+            product = self.productList.getProductById(code)
+            if product:
+                print(product)
+                self._addToList(product)
+            else:
+                messageBox = QtWidgets.QMessageBox()
+                messageBox.setText(f'No product found with id {code}')
+                messageBox.exec_()
 
     def pushFinishButton(self):
         playsound(navSoundPath)
