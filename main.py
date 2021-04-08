@@ -1,5 +1,7 @@
+import enum
 import math
 import sys
+import threading
 
 from playsound import playsound
 
@@ -8,9 +10,16 @@ from PyQt5.QtWidgets import QApplication
 from PyQt5.uic import loadUi
 
 from product import ProductsList
+from speechRecognition import SpeechRocognition
 
 navSoundPath = './sounds/navigation_selection-complete-celebration2.wav'
 tapSoundPath = './sounds/ui_tap-variant-03.wav'
+
+
+class View(enum.Enum):
+    StartView = 0
+    MainView = 1
+    SearchView = 2
 
 
 class SelfCheckoutStartWidget(QtWidgets.QWidget):
@@ -199,6 +208,26 @@ class SelfCheckoutApp(QtWidgets.QMainWindow):
         playsound(navSoundPath)
         self.stack.setCurrentIndex(2)
 
+    def clickStart(self):
+        if self.stack.currentIndex() == View.StartView:
+            self.startWidget.pushButtonStart.click()
+
+    def clickEnter(self):
+        if self.stack.currentIndex() == View.MainView:
+            self.mainWidget.pushButtonEnter.click()
+
+    def clickSearch(self):
+        if self.stack.currentIndex() == View.MainView:
+            self.mainWidget.pushButtonSearch.click()
+
+    def clickFinish(self):
+        if self.stack.currentIndex() == View.MainView:
+            self.mainWidget.pushButtonFinish.click()
+
+    def clickBack(self):
+        if self.stack.currentIndex() == View.SearchView:
+            self.searchWidget.pushButtonBack.click()
+
 
 def main():
     with open("style.qss", "r") as f:
@@ -207,7 +236,10 @@ def main():
     app = QApplication(sys.argv)
     app.setStyleSheet(style)
     form = SelfCheckoutApp()
+    speechR = SpeechRocognition(form)
     form.show()
+    threading.Thread(target=speechR.run, args=( )).start()
+
     sys.exit(app.exec_())
 
 
