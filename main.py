@@ -12,7 +12,6 @@ from PyQt5.QtWidgets import QApplication
 from PyQt5.uic import loadUi
 
 from product import ProductsList
-from speechRecognition import SpeechRocognition
 
 navSoundPath = './sounds/navigation_selection-complete-celebration2.wav'
 tapSoundPath = './sounds/ui_tap-variant-03.wav'
@@ -177,7 +176,6 @@ class SelfCheckoutMainWidget(QtWidgets.QWidget):
 
 
 class SelfCheckoutApp(QtWidgets.QMainWindow):
-    __instance = None
 
     def __init__(self):
         super(SelfCheckoutApp, self).__init__()
@@ -198,7 +196,7 @@ class SelfCheckoutApp(QtWidgets.QMainWindow):
 
         self.setCentralWidget(self.stack)
 
-        threading.Thread(target=self.run).start()
+        threading.Thread(target=self.listen, daemon=True).start()
 
     def openMainView(self):
         playsound(navSoundPath)
@@ -260,7 +258,7 @@ class SelfCheckoutApp(QtWidgets.QMainWindow):
         if text == "exit":
             self.close()
 
-    def run(self):
+    def listen(self):
         engine = pyttsx3.init()
         recognizer = sr.Recognizer()
         microphone = sr.Microphone()
