@@ -32,6 +32,7 @@ class SpeechRocognition:
 
     def _runCmd(self, text):
         if text == "hello" or text == "start":
+            print("fix inainte de clickstart")
             self.form.clickStart()
         if text == "enter":
             self.form.clickEnter()
@@ -45,16 +46,20 @@ class SpeechRocognition:
             self.form.close()
 
     def run(self):
+        print("before engine init")
         engine = pyttsx3.init()
+        print("after engine init")
         recognizer = sr.Recognizer()
         microphone = sr.Microphone()
 
         action = 'Listening'
         print(action)
+        print("before first texttospeach")
         self._textToSpeech(engine, action)
 
         quitFlag = True
         while (quitFlag):
+            print("in while quit flag")
             text = self._speechToText(recognizer, microphone)
             if not text["success"] and text["error"] == "API unavailable":
                 print("ERROR: {}\nclose program".format(text["error"]))
@@ -63,6 +68,7 @@ class SpeechRocognition:
                 print("I didn't catch that. What did you say?\n")
                 text = self._speechToText(recognizer, microphone)
 
+            print("fix inainte de runcmd")
             self._runCmd(text["transcription"].lower())
 
             if text["transcription"].lower() == "exit":

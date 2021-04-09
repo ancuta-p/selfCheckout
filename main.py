@@ -1,7 +1,9 @@
-import enum
 import math
 import sys
 import threading
+
+import speech_recognition as sr
+import pyttsx3
 
 from playsound import playsound
 
@@ -14,12 +16,6 @@ from speechRecognition import SpeechRocognition
 
 navSoundPath = './sounds/navigation_selection-complete-celebration2.wav'
 tapSoundPath = './sounds/ui_tap-variant-03.wav'
-
-
-class View(enum.Enum):
-    StartView = 0
-    MainView = 1
-    SearchView = 2
 
 
 class SelfCheckoutStartWidget(QtWidgets.QWidget):
@@ -181,7 +177,9 @@ class SelfCheckoutMainWidget(QtWidgets.QWidget):
 
 
 class SelfCheckoutApp(QtWidgets.QMainWindow):
-    def __init__(self, parent=None):
+    __instance = None
+
+    def __init__(self):
         super(SelfCheckoutApp, self).__init__()
         loadUi('selfCheckoutMainForm.ui', self)
 
@@ -200,6 +198,8 @@ class SelfCheckoutApp(QtWidgets.QMainWindow):
 
         self.setCentralWidget(self.stack)
 
+        threading.Thread(target=self.run).start()
+
     def openMainView(self):
         playsound(navSoundPath)
         self.stack.setCurrentIndex(1)
@@ -209,24 +209,82 @@ class SelfCheckoutApp(QtWidgets.QMainWindow):
         self.stack.setCurrentIndex(2)
 
     def clickStart(self):
-        if self.stack.currentIndex() == View.StartView:
+        if self.stack.currentIndex() == 0:
             self.startWidget.pushButtonStart.click()
 
     def clickEnter(self):
-        if self.stack.currentIndex() == View.MainView:
+        if self.stack.currentIndex() == 1:
             self.mainWidget.pushButtonEnter.click()
 
     def clickSearch(self):
-        if self.stack.currentIndex() == View.MainView:
+        if self.stack.currentIndex() == 1:
             self.mainWidget.pushButtonSearch.click()
 
     def clickFinish(self):
-        if self.stack.currentIndex() == View.MainView:
+        if self.stack.currentIndex() == 1:
             self.mainWidget.pushButtonFinish.click()
 
     def clickBack(self):
-        if self.stack.currentIndex() == View.SearchView:
+        if self.stack.currentIndex() == 2:
             self.searchWidget.pushButtonBack.click()
+
+    def _speechToText(self, recognizer, microphone):
+        with microphone as source:
+            recognizer.adjust_for_ambient_noise(source)
+            audio = recognizer.listen(source)
+
+        response = {"success": True,
+                    "error": None,
+                    "transcription": None}
+        try:
+            response["transcription"] = recognizer.recognize_google(audio)
+        except sr.RequestError:
+            response["success"] = False
+            response["error"] = "API unavailable"
+        except sr.UnknownValueError:
+            response["success"] = False
+            response["error"] = "Unable to recognize speech"
+        return response
+
+    def _runCmd(self, text):
+        if text == "hello" or text == "start":
+            self.clickStart()
+        if text == "enter":
+            self.clickEnter()
+        if text == "search item":
+            self.clickSearch()
+        if text == "back":
+            self.clickBack()
+        if text.find("finish") != -1 or text.find("pay") != -1:
+            self.clickFinish()
+        if text == "exit":
+            self.close()
+
+    def run(self):
+        engine = pyttsx3.init()
+        recognizer = sr.Recognizer()
+        microphone = sr.Microphone()
+
+        action = 'Listening'
+        print(action)
+
+        quitFlag = True
+        while (quitFlag):
+            text = self._speechToText(recognizer, microphone)
+            if not text["success"] and text["error"] == "API unavailable":
+                print("ERROR: {}\nclose program".format(text["error"]))
+                break
+            while not text["success"]:
+                print("I didn't catch that. What did you say?\n")
+                text = self._speechToText(recognizer, microphone)
+
+            self._runCmd(text["transcription"].lower())
+
+            if text["transcription"].lower() == "exit":
+                quitFlag = False
+
+            print(text["transcription"].lower())
+            # self._textToSpeech(engine, text["transcription"].lower())
 
 
 def main():
@@ -236,9 +294,8 @@ def main():
     app = QApplication(sys.argv)
     app.setStyleSheet(style)
     form = SelfCheckoutApp()
-    speechR = SpeechRocognition(form)
+
     form.show()
-    threading.Thread(target=speechR.run, args=( )).start()
 
     sys.exit(app.exec_())
 
