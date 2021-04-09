@@ -1,4 +1,3 @@
-import enum
 import math
 import sys
 import threading
@@ -14,12 +13,6 @@ from speechRecognition import SpeechRocognition
 
 navSoundPath = './sounds/navigation_selection-complete-celebration2.wav'
 tapSoundPath = './sounds/ui_tap-variant-03.wav'
-
-
-class View(enum.Enum):
-    StartView = 0
-    MainView = 1
-    SearchView = 2
 
 
 class SelfCheckoutStartWidget(QtWidgets.QWidget):
@@ -209,23 +202,23 @@ class SelfCheckoutApp(QtWidgets.QMainWindow):
         self.stack.setCurrentIndex(2)
 
     def clickStart(self):
-        if self.stack.currentIndex() == View.StartView:
+        if self.stack.currentIndex() == 0:
             self.startWidget.pushButtonStart.click()
 
     def clickEnter(self):
-        if self.stack.currentIndex() == View.MainView:
+        if self.stack.currentIndex() == 1:
             self.mainWidget.pushButtonEnter.click()
 
     def clickSearch(self):
-        if self.stack.currentIndex() == View.MainView:
+        if self.stack.currentIndex() == 1:
             self.mainWidget.pushButtonSearch.click()
 
     def clickFinish(self):
-        if self.stack.currentIndex() == View.MainView:
+        if self.stack.currentIndex() == 1:
             self.mainWidget.pushButtonFinish.click()
 
     def clickBack(self):
-        if self.stack.currentIndex() == View.SearchView:
+        if self.stack.currentIndex() == 2:
             self.searchWidget.pushButtonBack.click()
 
 
@@ -238,7 +231,7 @@ def main():
     form = SelfCheckoutApp()
     speechR = SpeechRocognition(form)
     form.show()
-    threading.Thread(target=speechR.run, args=( )).start()
+    threading.Thread(target=speechR.run).start()
 
     sys.exit(app.exec_())
 
